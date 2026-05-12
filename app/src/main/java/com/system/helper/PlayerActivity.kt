@@ -1,54 +1,46 @@
 package com.system.helper
 
+import android.net.Uri
 import android.os.Bundle
-import android.view.View
-import android.widget.ImageButton
-import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.media3.common.MediaItem
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
 
 class PlayerActivity : AppCompatActivity() {
 
-    private lateinit var controlsLayout: View
+    private lateinit var player: ExoPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_player)
 
-        controlsLayout = findViewById(R.id.controlsLayout)
+        val playerView = findViewById<PlayerView>(R.id.playerView)
 
-        val playPause = findViewById<ImageButton>(R.id.playPauseButton)
+        player = ExoPlayer.Builder(this).build()
 
-        val nextButton = findViewById<ImageButton>(R.id.nextButton)
+        playerView.player = player
 
-        val prevButton = findViewById<ImageButton>(R.id.prevButton)
+        val videoUri = intent.getStringExtra("videoUri")
 
-        val seekBar = findViewById<SeekBar>(R.id.seekBar)
+        if (videoUri != null) {
 
-        val rootView = findViewById<View>(R.id.rootLayout)
+            val mediaItem = MediaItem.fromUri(
+                Uri.parse(videoUri)
+            )
 
-        rootView.setOnClickListener {
+            player.setMediaItem(mediaItem)
 
-            if (controlsLayout.visibility == View.VISIBLE) {
+            player.prepare()
 
-                controlsLayout.visibility = View.GONE
-
-            } else {
-
-                controlsLayout.visibility = View.VISIBLE
-            }
+            player.play()
         }
+    }
 
-        playPause.setOnClickListener {
+    override fun onDestroy() {
+        super.onDestroy()
 
-        }
-
-        nextButton.setOnClickListener {
-
-        }
-
-        prevButton.setOnClickListener {
-
-        }
+        player.release()
     }
 }
