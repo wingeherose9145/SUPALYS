@@ -1,8 +1,6 @@
 package com.system.helper
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.media.MediaMetadataRetriever
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -49,28 +47,9 @@ class VideoAdapter(
         videoName.text =
             item.displayName
 
-        try {
-
-            val retriever =
-                MediaMetadataRetriever()
-
-            retriever.setDataSource(
-                context,
-                item.uri
-            )
-
-            val bitmap: Bitmap? =
-                retriever.frameAtTime
-
-            if (bitmap != null) {
-
-                thumbImage.setImageBitmap(bitmap)
-            }
-
-            retriever.release()
-
-        } catch (_: Exception) {
-        }
+        thumbImage.setImageResource(
+            android.R.drawable.ic_media_play
+        )
 
         return view
     }
