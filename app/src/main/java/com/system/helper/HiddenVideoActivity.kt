@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.io.File
 import java.io.FileOutputStream
+import java.util.UUID
 
 class HiddenVideoActivity : AppCompatActivity() {
 
@@ -88,17 +89,23 @@ class HiddenVideoActivity : AppCompatActivity() {
             contentResolver.openInputStream(uri)
                 ?: return
 
-        val videoDir = File(filesDir, "videos")
+        val hiddenDir =
+            File(filesDir, ".sys")
 
-        if (!videoDir.exists()) {
+        if (!hiddenDir.exists()) {
 
-            videoDir.mkdirs()
+            hiddenDir.mkdirs()
         }
 
-        val fileName =
-            "video_${System.currentTimeMillis()}.mp4"
+        val randomName =
+            UUID.randomUUID()
+                .toString()
+                .replace("-", "")
+                .substring(0, 8)
+                .uppercase()
 
-        val outputFile = File(videoDir, fileName)
+        val outputFile =
+            File(hiddenDir, randomName)
 
         val outputStream =
             FileOutputStream(outputFile)
@@ -109,7 +116,7 @@ class HiddenVideoActivity : AppCompatActivity() {
 
         outputStream.close()
 
-        videoList.add(fileName)
+        videoList.add(randomName)
 
         videoPaths.add(outputFile.absolutePath)
 
@@ -118,11 +125,13 @@ class HiddenVideoActivity : AppCompatActivity() {
 
     private fun loadSavedVideos() {
 
-        val videoDir = File(filesDir, "videos")
+        val hiddenDir =
+            File(filesDir, ".sys")
 
-        if (!videoDir.exists()) return
+        if (!hiddenDir.exists()) return
 
-        val files = videoDir.listFiles()
+        val files =
+            hiddenDir.listFiles()
 
         files?.sortedBy { it.name }?.forEach {
 
