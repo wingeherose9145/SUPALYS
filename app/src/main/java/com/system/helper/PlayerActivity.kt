@@ -22,9 +22,8 @@ class PlayerActivity : AppCompatActivity() {
 
     private lateinit var seekBar: SeekBar
 
-    private lateinit var playPauseButton: ImageButton
-
-    private val handler = Handler(Looper.getMainLooper())
+    private val handler =
+        Handler(Looper.getMainLooper())
 
     private var isPortrait = false
 
@@ -50,9 +49,6 @@ class PlayerActivity : AppCompatActivity() {
 
         seekBar =
             findViewById(R.id.seekBar)
-
-        playPauseButton =
-            findViewById(R.id.playPauseButton)
 
         val rotateButton =
             findViewById<ImageButton>(
@@ -84,35 +80,23 @@ class PlayerActivity : AppCompatActivity() {
             player.play()
         }
 
+        controlLayout.visibility = View.GONE
+
         playerView.setOnClickListener {
-
-            if (controlLayout.visibility == View.VISIBLE) {
-
-                controlLayout.visibility = View.GONE
-
-            } else {
-
-                controlLayout.visibility = View.VISIBLE
-            }
-        }
-
-        playPauseButton.setOnClickListener {
 
             if (player.isPlaying) {
 
                 player.pause()
 
-                playPauseButton.setImageResource(
-                    android.R.drawable.ic_media_play
-                )
+                controlLayout.visibility =
+                    View.VISIBLE
 
             } else {
 
                 player.play()
 
-                playPauseButton.setImageResource(
-                    android.R.drawable.ic_media_pause
-                )
+                controlLayout.visibility =
+                    View.GONE
             }
         }
 
@@ -167,7 +151,9 @@ class PlayerActivity : AppCompatActivity() {
 
                     if (fromUser) {
 
-                        player.seekTo(progress.toLong())
+                        player.seekTo(
+                            progress.toLong()
+                        )
                     }
                 }
 
@@ -187,6 +173,8 @@ class PlayerActivity : AppCompatActivity() {
         super.onPause()
 
         player.pause()
+
+        controlLayout.visibility = View.VISIBLE
     }
 
     override fun onDestroy() {
