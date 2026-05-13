@@ -5,10 +5,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.text.InputType
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import kotlin.random.Random
 
 class FakeHomeActivity : AppCompatActivity() {
 
@@ -27,6 +26,72 @@ class FakeHomeActivity : AppCompatActivity() {
             findViewById<TextView>(
                 R.id.titleText
             )
+
+        val batteryText =
+            findViewById<TextView>(
+                R.id.batteryText
+            )
+
+        val tempText =
+            findViewById<TextView>(
+                R.id.tempText
+            )
+
+        val ramText =
+            findViewById<TextView>(
+                R.id.ramText
+            )
+
+        val cacheText =
+            findViewById<TextView>(
+                R.id.cacheText
+            )
+
+        val ramBar =
+            findViewById<ProgressBar>(
+                R.id.ramBar
+            )
+
+        val cleanButton =
+            findViewById<Button>(
+                R.id.cleanButton
+            )
+
+        val ramUsed =
+            Random.nextInt(4, 8)
+
+        val ramPercent =
+            Random.nextInt(45, 92)
+
+        val temp =
+            Random.nextInt(30, 41)
+
+        val cache =
+            Random.nextDouble(0.8, 3.2)
+
+        val batteryStates =
+            listOf(
+                "Excellent",
+                "Good",
+                "Normal"
+            )
+
+        batteryText.text =
+            batteryStates.random()
+
+        tempText.text =
+            "Temperature: ${temp}°C"
+
+        ramText.text =
+            "${ramUsed}.2GB / 8GB Used"
+
+        ramBar.progress =
+            ramPercent
+
+        cacheText.text =
+            "Junk Cache: ${
+                String.format("%.1f", cache)
+            }GB"
 
         titleText.setOnClickListener {
 
@@ -48,11 +113,56 @@ class FakeHomeActivity : AppCompatActivity() {
             }, 1000)
         }
 
-        Toast.makeText(
-            this,
-            "System Status Normal",
-            Toast.LENGTH_SHORT
-        ).show()
+        cleanButton.setOnClickListener {
+
+            simulateCleaning()
+        }
+    }
+
+    private fun simulateCleaning() {
+
+        val progressDialog =
+            ProgressDialog(this)
+
+        progressDialog.setTitle(
+            "System Cleaner"
+        )
+
+        progressDialog.setMessage(
+            "Scanning..."
+        )
+
+        progressDialog.setCancelable(false)
+
+        progressDialog.show()
+
+        handler.postDelayed({
+
+            progressDialog.setMessage(
+                "Cleaning Cache..."
+            )
+
+        }, 1200)
+
+        handler.postDelayed({
+
+            progressDialog.setMessage(
+                "Optimizing System..."
+            )
+
+        }, 2500)
+
+        handler.postDelayed({
+
+            progressDialog.dismiss()
+
+            Toast.makeText(
+                this,
+                "System Optimized",
+                Toast.LENGTH_SHORT
+            ).show()
+
+        }, 4000)
     }
 
     private fun showPasswordDialog() {
@@ -90,7 +200,10 @@ class FakeHomeActivity : AppCompatActivity() {
                     ).show()
                 }
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(
+                "Cancel",
+                null
+            )
             .show()
     }
 }
