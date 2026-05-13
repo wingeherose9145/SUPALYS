@@ -27,7 +27,7 @@ class FakeHomeActivity : AppCompatActivity() {
 
             clickCount++
 
-            if (clickCount == 3) {
+            if (clickCount == 5) {
 
                 clickCount = 0
 
