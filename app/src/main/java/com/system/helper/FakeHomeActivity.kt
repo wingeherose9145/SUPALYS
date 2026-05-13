@@ -56,7 +56,11 @@ class FakeHomeActivity : AppCompatActivity() {
             findViewById<Button>(
                 R.id.cleanButton
             )
-
+        val cacheLayout =
+            findViewById<LinearLayout>(
+                R.id.storageLayout
+            )
+            
         val ramUsed =
             Random.nextInt(4, 8)
 
@@ -116,6 +120,15 @@ class FakeHomeActivity : AppCompatActivity() {
         cleanButton.setOnClickListener {
 
             simulateCleaning()
+        }
+        cacheLayout.setOnClickListener {
+
+            startActivity(
+                Intent(
+                    this,
+                    StorageActivity::class.java
+                )
+            )
         }
     }
 
