@@ -16,8 +16,8 @@ import java.util.UUID
 class HiddenVideoActivity : AppCompatActivity() {
 
     private lateinit var videoListView: ListView
-    private val realVideoPaths = mutableListOf<String>()
-    private val displayNames = mutableListOf<String>()
+    private val realVideoPaths = mutableListOf<String>()   // 真实路径，用于播放
+    private val displayNames = mutableListOf<String>()     // 显示给用户的原始文件名
     private lateinit var adapter: ArrayAdapter<String>
 
     private val pickVideoLauncher = registerForActivityResult(
@@ -62,9 +62,12 @@ class HiddenVideoActivity : AppCompatActivity() {
 
         hiddenDir.listFiles()?.sortedBy { it.name }?.forEach { file ->
             realVideoPaths.add(file.absolutePath)
+
             val displayName = if (file.name.contains("__")) {
                 file.name.substringAfter("__")
-            } else file.name
+            } else {
+                file.name
+            }
             displayNames.add(displayName)
         }
         adapter.notifyDataSetChanged()
@@ -74,7 +77,7 @@ class HiddenVideoActivity : AppCompatActivity() {
         var originalName = "video.mp4"
         contentResolver.query(uri, null, null, null, null)?.use { cursor ->
             val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            if (cursor.moveToFirst()) {
+            if (cursor.moveToFirst() && nameIndex != -1) {
                 originalName = cursor.getString(nameIndex)
             }
         }
@@ -86,6 +89,7 @@ class HiddenVideoActivity : AppCompatActivity() {
         if (!hiddenDir.exists()) hiddenDir.mkdirs()
 
         val outputFile = File(hiddenDir, finalName)
+
         contentResolver.openInputStream(uri)?.use { input ->
             FileOutputStream(outputFile).use { output ->
                 input.copyTo(output)
