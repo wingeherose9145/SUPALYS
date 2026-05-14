@@ -3,7 +3,7 @@
 
     <application
         android:allowBackup="true"
-        android:label="PLAYER-SUP"
+        android:label="SUPALYS"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
         <!-- 视频列表页面 -->
