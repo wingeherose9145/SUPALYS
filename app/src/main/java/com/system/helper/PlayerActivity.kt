@@ -26,7 +26,7 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var topControls: LinearLayout
     private lateinit var videoList: ArrayList<String>
     private var currentIndex = 0
-    private var tempFile: File? = null
+
     private val handler = Handler(Looper.getMainLooper())
     private var isPortrait = false
 
@@ -39,12 +39,9 @@ class PlayerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        window.setFlags(
-            WindowManager.LayoutParams.FLAG_SECURE,
-            WindowManager.LayoutParams.FLAG_SECURE
-        )
+        window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE)
 
-        window.decorView.systemUiVisibility =
+        window.decorView.systemUiVisibility = 
             View.SYSTEM_UI_FLAG_FULLSCREEN or
             View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
             View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
@@ -64,12 +61,12 @@ class PlayerActivity : AppCompatActivity() {
         playerView.player = player
         playerView.useController = false
 
-        // 关键修复：参数名必须与 HiddenVideoActivity 一致
+        // 关键修复：参数名必须一致
         videoList = intent.getStringArrayListExtra("video_list") ?: arrayListOf()
         currentIndex = intent.getIntExtra("video_index", 0)
 
-        if (videoList.isEmpty()) {
-            Toast.makeText(this, "视频列表为空", Toast.LENGTH_LONG).show()
+        if (videoList.isEmpty() || currentIndex >= videoList.size) {
+            Toast.makeText(this, "视频列表为空或索引错误", Toast.LENGTH_LONG).show()
             finish()
             return
         }
@@ -135,27 +132,20 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun playVideo() {
-        deleteTempFile()
-
         val videoFile = File(videoList[currentIndex])
         if (!videoFile.exists() || videoFile.length() == 0L) {
-            Toast.makeText(this, "视频文件不存在或已损坏", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "视频文件不存在", Toast.LENGTH_LONG).show()
             finish()
             return
         }
 
-        // 当前不加密，直接播放（最稳定方案）
+        // 直接播放（当前未加密，跳过解密）
         val mediaItem = MediaItem.fromUri(Uri.fromFile(videoFile))
         player.setMediaItem(mediaItem)
         player.prepare()
         player.play()
 
         startAutoHide()
-    }
-
-    private fun deleteTempFile() {
-        tempFile?.delete()
-        tempFile = null
     }
 
     private fun playNextVideo() {
@@ -204,7 +194,6 @@ class PlayerActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        deleteTempFile()
         player.release()
     }
 }
