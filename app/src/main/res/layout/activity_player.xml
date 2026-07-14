@@ -11,6 +11,39 @@
         android:layout_height="match_parent"
         android:keepScreenOn="true" />
 
+    <!-- 顶部控制栏（右上角后退按钮 + 时间） -->
+    <LinearLayout
+        android:id="@+id/topControls"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="end|center_vertical"
+        android:visibility="visible">
+
+        <!-- 当前/总时间 -->
+        <TextView
+            android:id="@+id/timeText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:text="00:00 / 00:00"
+            android:layout_marginEnd="16dp" />
+
+        <!-- 后退5秒按钮 -->
+        <ImageButton
+            android:id="@+id/btnRewind"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_media_rew"
+            android:tint="#FFFFFF"
+            android:scaleType="center" />
+
+    </LinearLayout>
+
     <!-- 底部进度条 -->
     <SeekBar
         android:id="@+id/seekBar"
