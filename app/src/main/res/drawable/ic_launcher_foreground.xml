@@ -4,20 +4,22 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    
-    <!-- 背景层（留白或简单形状） -->
+
+    <!-- 白色背景层 -->
     <path
         android:fillColor="#FFFFFF"
         android:pathData="M0,0 h108 v108 h-108 Z" />
-    
-    <!-- 示例：播放器图标（三角形 + 圆圈，代表视频播放） -->
+
+    <!-- 绿色播放三角形（视频播放器象征） -->
     <path
         android:fillColor="#3DDC84"
-        android:pathData="M54,30 L78,54 L54,78 Z" />
-    
-    <circle
-        android:cx="54"
-        android:cy="54"
-        android:r="18"
-        android:fillColor="#FFFFFF" />
+        android:pathData="M38,30 L78,54 L38,78 Z" />
+
+    <!-- 圆形外环（可选装饰） -->
+    <path
+        android:strokeColor="#3DDC84"
+        android:strokeWidth="8"
+        android:fillColor="#00000000"
+        android:pathData="M54,54 m-22,0 a22,22 0 1,1 44,0 a22,22 0 1,1 -44,0" />
+
 </vector>
