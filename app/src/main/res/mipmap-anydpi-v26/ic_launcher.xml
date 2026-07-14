@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@color/white"/>
+    <!-- 背景使用你已有的绿色 vector -->
+    <background android:drawable="@drawable/ic_launcher_background" />
     
-    <foreground android:drawable="@mipmap/ic_launcher"/> 
+    <!-- 前景使用你已有的 vector（建议后续换成有内容的图标） -->
+    <foreground android:drawable="@drawable/ic_launcher_foreground" />
+    
+    <!-- 可选：单色图标支持（现代 Launcher 推荐） -->
+    <monochrome android:drawable="@drawable/ic_launcher_foreground" />
 </adaptive-icon>
