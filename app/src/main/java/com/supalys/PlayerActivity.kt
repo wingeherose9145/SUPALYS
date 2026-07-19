@@ -120,23 +120,22 @@ class PlayerActivity : AppCompatActivity() {
     private fun saveVideoList() {
         getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
             .edit()
-            .putStringSet(KEY_VIDEO_LIST, videoUris.toSet())
+            .putStringSet(KEY_VIDEO_LIST, HashSet(videoUris))
             .apply()
     }
 
     private fun loadVideoList() {
         val prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        val savedSet = prefs.getStringSet(KEY_VIDEO_LIST, emptySet()) ?: emptySet()
+        val savedSet = prefs.getStringSet(KEY_VIDEO_LIST, HashSet()) ?: HashSet()
         videoUris.clear()
-        videoUris.addAll(savedSet.filterNotNull())
+        videoUris.addAll(savedSet)
     }
 
     private fun removeCurrentVideo() {
         if (videoUris.isNotEmpty()) {
-            val removed = videoUris.removeAt(currentIndex)
+            videoUris.removeAt(currentIndex)
             saveVideoList()
-            Toast.makeText(this, "已删除: $removed", Toast.LENGTH_SHORT).show()
-
+            Toast.makeText(this, "已删除当前视频", Toast.LENGTH_SHORT).show()
             if (videoUris.isEmpty()) {
                 clearVideoList()
             } else {
@@ -170,7 +169,6 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
-    // 以下方法保持不变（playCurrentVideo, setVideoOrientation, playNextVideo 等）
     private fun playCurrentVideo() {
         try {
             val uri = Uri.parse(videoUris[currentIndex])
@@ -243,20 +241,4 @@ class PlayerActivity : AppCompatActivity() {
                 if (fromUser) player.seekTo(progress.toLong())
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) = showControlsTemporarily()
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-        })
-    }
-
-    override fun onPause() {
-        super.onPause()
-        player.pause()
-        saveVideoList()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        handler.removeCallbacksAndMessages(null)
-        hideControlsHandler.removeCallbacksAndMessages(null)
-        player.release()
-    }
-}
+            override fun onStopTrackingTouch(seekBar: Seek
