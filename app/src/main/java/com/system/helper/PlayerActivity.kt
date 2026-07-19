@@ -29,7 +29,7 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var timeText: TextView
     private lateinit var btnRewind: ImageButton
 
-    private var videoUris: ArrayList<String> = ArrayList()
+    private var videoUris = ArrayList<String>()
     private var currentIndex = 0
 
     private val handler = Handler(Looper.getMainLooper())
@@ -61,14 +61,12 @@ class PlayerActivity : AppCompatActivity() {
         playerView.player = player
         playerView.useController = false
 
-        // 加载历史列表
         loadVideoList()
 
-        // 新列表覆盖
-        intent.getStringArrayListExtra("video_list")?.let {
-            if (it.isNotEmpty()) {
+        intent.getStringArrayListExtra("video_list")?.let { list ->
+            if (list.isNotEmpty()) {
                 videoUris.clear()
-                videoUris.addAll(it)
+                videoUris.addAll(list)
                 currentIndex = intent.getIntExtra("current_index", 0)
                 saveVideoList()
             }
@@ -83,14 +81,11 @@ class PlayerActivity : AppCompatActivity() {
         setupGestureDetector()
         setupSeekBar()
         setupRewindButton()
-        setupAutoHideControls()
+        showControlsTemporarily()
 
         player.addListener(object : Player.Listener {
             override fun onPlaybackStateChanged(state: Int) {
                 if (state == Player.STATE_ENDED) playNextVideo()
-            }
-            override fun onIsPlayingChanged(isPlaying: Boolean) {
-                if (isPlaying) showControlsTemporarily()
             }
         })
 
@@ -103,64 +98,45 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun saveVideoList() {
-        val prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        prefs.edit().putStringSet(KEY_VIDEO_LIST, videoUris.toSet()).apply()
+        getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putStringSet(KEY_VIDEO_LIST, videoUris.toSet())
+            .apply()
     }
 
     private fun loadVideoList() {
-        val prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        val savedSet = prefs.getStringSet(KEY_VIDEO_LIST, emptySet())
+        val saved = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+            .getStringSet(KEY_VIDEO_LIST, emptySet())
         videoUris.clear()
-        videoUris.addAll(savedSet)
+        videoUris.addAll(saved)
     }
 
     private fun clearVideoList() {
         videoUris.clear()
-        val prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        prefs.edit().remove(KEY_VIDEO_LIST).apply()
+        getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).edit().remove(KEY_VIDEO_LIST).apply()
         Toast.makeText(this, "列表已清除", Toast.LENGTH_SHORT).show()
         finish()
     }
 
-    private fun removeCurrentVideo() {
-        if (videoUris.isNotEmpty()) {
-            videoUris.removeAt(currentIndex)
-            saveVideoList()
-            Toast.makeText(this, "已删除当前视频", Toast.LENGTH_SHORT).show()
-
-            if (videoUris.isEmpty()) {
-                clearVideoList()
-            } else {
-                if (currentIndex >= videoUris.size) currentIndex = videoUris.size - 1
-                playCurrentVideo()
-            }
-        }
-    }
-
+    // 其他方法（保持简洁）
     private fun setupRewindButton() {
         btnRewind.setOnClickListener {
-            val newPosition = (player.currentPosition - 5000).coerceAtLeast(0L)
-            player.seekTo(newPosition)
+            player.seekTo((player.currentPosition - 5000).coerceAtLeast(0))
             showControlsTemporarily()
         }
     }
 
-    private fun setupAutoHideControls() {
-        showControlsTemporarily()
-    }
-
     private fun showControlsTemporarily() {
-        val topControls = findViewById<View>(R.id.topControls)
-        topControls.visibility = View.VISIBLE
+        findViewById<View>(R.id.topControls).visibility = View.VISIBLE
         seekBar.visibility = View.VISIBLE
         hideControlsHandler.removeCallbacks(hideControlsRunnable)
         hideControlsHandler.postDelayed(hideControlsRunnable, 3000)
     }
 
     private fun toggleControls() {
-        val topControls = findViewById<View>(R.id.topControls)
-        if (topControls.visibility == View.VISIBLE) {
-            topControls.visibility = View.GONE
+        val controls = findViewById<View>(R.id.topControls)
+        if (controls.visibility == View.VISIBLE) {
+            controls.visibility = View.GONE
             seekBar.visibility = View.GONE
         } else {
             showControlsTemporarily()
@@ -171,7 +147,6 @@ class PlayerActivity : AppCompatActivity() {
         try {
             val uri = Uri.parse(videoUris[currentIndex])
             setVideoOrientation(uri)
-
             player.stop()
             player.setMediaItem(MediaItem.fromUri(uri))
             player.prepare()
@@ -189,7 +164,7 @@ class PlayerActivity : AppCompatActivity() {
             val height = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)?.toIntOrNull() ?: 0
             requestedOrientation = if (height > width) ActivityInfo.SCREEN_ORIENTATION_PORTRAIT else ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             retriever.release()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         }
     }
@@ -198,8 +173,6 @@ class PlayerActivity : AppCompatActivity() {
         if (currentIndex < videoUris.size - 1) {
             currentIndex++
             playCurrentVideo()
-        } else {
-            Toast.makeText(this, "播放列表结束", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -220,11 +193,7 @@ class PlayerActivity : AppCompatActivity() {
                 return false
             }
         })
-
-        playerView.setOnTouchListener { _, event ->
-            gestureDetector.onTouchEvent(event)
-            false
-        }
+        playerView.setOnTouchListener { _, event -> gestureDetector.onTouchEvent(event); false }
     }
 
     private fun setupSeekBar() {
@@ -235,8 +204,7 @@ class PlayerActivity : AppCompatActivity() {
                     seekBar.progress = player.currentPosition.toInt()
                     val current = player.currentPosition / 1000
                     val total = player.duration / 1000
-                    timeText.text = String.format("%02d:%02d / %02d:%02d", 
-                        current / 60, current % 60, total / 60, total % 60)
+                    timeText.text = String.format("%02d:%02d / %02d:%02d", current / 60, current % 60, total / 60, total % 60)
                 }
                 handler.postDelayed(this, 500)
             }
