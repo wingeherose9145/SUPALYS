@@ -61,16 +61,16 @@ class PlayerActivity : AppCompatActivity() {
         playerView.player = player
         playerView.useController = false
 
-        // 加载持久化列表
+        // 加载历史列表
         loadVideoList()
 
-        // 从 Intent 接收新列表（优先级更高）
+        // 新列表覆盖
         intent.getStringArrayListExtra("video_list")?.let {
             if (it.isNotEmpty()) {
                 videoUris.clear()
                 videoUris.addAll(it)
                 currentIndex = intent.getIntExtra("current_index", 0)
-                saveVideoList()  // 保存新列表
+                saveVideoList()
             }
         }
 
@@ -118,9 +118,24 @@ class PlayerActivity : AppCompatActivity() {
         videoUris.clear()
         val prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         prefs.edit().remove(KEY_VIDEO_LIST).apply()
+        Toast.makeText(this, "列表已清除", Toast.LENGTH_SHORT).show()
+        finish()
     }
 
-    // ... 其余方法保持不变（setupRewindButton, showControlsTemporarily, toggleControls, playCurrentVideo 等）
+    private fun removeCurrentVideo() {
+        if (videoUris.isNotEmpty()) {
+            videoUris.removeAt(currentIndex)
+            saveVideoList()
+            Toast.makeText(this, "已删除当前视频", Toast.LENGTH_SHORT).show()
+
+            if (videoUris.isEmpty()) {
+                clearVideoList()
+            } else {
+                if (currentIndex >= videoUris.size) currentIndex = videoUris.size - 1
+                playCurrentVideo()
+            }
+        }
+    }
 
     private fun setupRewindButton() {
         btnRewind.setOnClickListener {
@@ -220,7 +235,8 @@ class PlayerActivity : AppCompatActivity() {
                     seekBar.progress = player.currentPosition.toInt()
                     val current = player.currentPosition / 1000
                     val total = player.duration / 1000
-                    timeText.text = String.format("%02d:%02d / %02d:%02d", current / 60, current % 60, total / 60, total % 60)
+                    timeText.text = String.format("%02d:%02d / %02d:%02d", 
+                        current / 60, current % 60, total / 60, total % 60)
                 }
                 handler.postDelayed(this, 500)
             }
@@ -238,7 +254,7 @@ class PlayerActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         player.pause()
-        saveVideoList()   // 退出时保存
+        saveVideoList()
     }
 
     override fun onDestroy() {
