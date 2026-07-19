@@ -11,6 +11,7 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import android.widget.Button
 import android.widget.ImageButton
 import android.widget.SeekBar
 import android.widget.TextView
@@ -28,6 +29,8 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var seekBar: SeekBar
     private lateinit var timeText: TextView
     private lateinit var btnRewind: ImageButton
+    private lateinit var btnDeleteCurrent: ImageButton
+    private lateinit var btnClearList: Button
 
     private var videoUris = ArrayList<String>()
     private var currentIndex = 0
@@ -56,6 +59,8 @@ class PlayerActivity : AppCompatActivity() {
         seekBar = findViewById(R.id.seekBar)
         timeText = findViewById(R.id.timeText)
         btnRewind = findViewById(R.id.btnRewind)
+        btnDeleteCurrent = findViewById(R.id.btnDeleteCurrent)
+        btnClearList = findViewById(R.id.btnClearList)
 
         player = ExoPlayer.Builder(this).build()
         playerView.player = player
@@ -80,7 +85,7 @@ class PlayerActivity : AppCompatActivity() {
 
         setupGestureDetector()
         setupSeekBar()
-        setupRewindButton()
+        setupButtons()
         showControlsTemporarily()
 
         player.addListener(object : Player.Listener {
@@ -97,6 +102,21 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupButtons() {
+        btnRewind.setOnClickListener {
+            player.seekTo((player.currentPosition - 5000).coerceAtLeast(0))
+            showControlsTemporarily()
+        }
+
+        btnDeleteCurrent.setOnClickListener {
+            removeCurrentVideo()
+        }
+
+        btnClearList.setOnClickListener {
+            clearVideoList()
+        }
+    }
+
     private fun saveVideoList() {
         getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
             .edit()
@@ -108,14 +128,29 @@ class PlayerActivity : AppCompatActivity() {
         val prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         val savedSet = prefs.getStringSet(KEY_VIDEO_LIST, emptySet()) ?: emptySet()
         videoUris.clear()
-        videoUris.addAll(savedSet.filterNotNull())   // 修复类型不匹配
+        videoUris.addAll(savedSet.filterNotNull())
     }
 
-    private fun setupRewindButton() {
-        btnRewind.setOnClickListener {
-            player.seekTo((player.currentPosition - 5000).coerceAtLeast(0))
-            showControlsTemporarily()
+    private fun removeCurrentVideo() {
+        if (videoUris.isNotEmpty()) {
+            val removed = videoUris.removeAt(currentIndex)
+            saveVideoList()
+            Toast.makeText(this, "已删除: $removed", Toast.LENGTH_SHORT).show()
+
+            if (videoUris.isEmpty()) {
+                clearVideoList()
+            } else {
+                if (currentIndex >= videoUris.size) currentIndex = videoUris.size - 1
+                playCurrentVideo()
+            }
         }
+    }
+
+    private fun clearVideoList() {
+        videoUris.clear()
+        getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).edit().remove(KEY_VIDEO_LIST).apply()
+        Toast.makeText(this, "列表已全部清除", Toast.LENGTH_SHORT).show()
+        finish()
     }
 
     private fun showControlsTemporarily() {
@@ -135,6 +170,7 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
+    // 以下方法保持不变（playCurrentVideo, setVideoOrientation, playNextVideo 等）
     private fun playCurrentVideo() {
         try {
             val uri = Uri.parse(videoUris[currentIndex])
