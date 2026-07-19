@@ -105,17 +105,10 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun loadVideoList() {
-        val saved = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-            .getStringSet(KEY_VIDEO_LIST, emptySet())
+        val prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        val savedSet = prefs.getStringSet(KEY_VIDEO_LIST, emptySet()) ?: emptySet()
         videoUris.clear()
-        videoUris.addAll(saved)
-    }
-
-    private fun clearVideoList() {
-        videoUris.clear()
-        getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).edit().remove(KEY_VIDEO_LIST).apply()
-        Toast.makeText(this, "列表已清除", Toast.LENGTH_SHORT).show()
-        finish()
+        videoUris.addAll(savedSet.filterNotNull())   // 修复类型不匹配
     }
 
     private fun setupRewindButton() {
