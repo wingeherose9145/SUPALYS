@@ -241,4 +241,20 @@ class PlayerActivity : AppCompatActivity() {
                 if (fromUser) player.seekTo(progress.toLong())
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) = showControlsTemporarily()
-            override fun onStopTrackingTouch(seekBar: Seek
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+    }
+
+    override fun onPause() {
+        super.onPause()
+        player.pause()
+        saveVideoList()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        handler.removeCallbacksAndMessages(null)
+        hideControlsHandler.removeCallbacksAndMessages(null)
+        player.release()
+    }
+}
