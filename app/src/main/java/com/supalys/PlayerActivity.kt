@@ -11,7 +11,6 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.SeekBar
 import android.widget.TextView
@@ -29,8 +28,6 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var seekBar: SeekBar
     private lateinit var timeText: TextView
     private lateinit var btnRewind: ImageButton
-    private lateinit var btnDeleteCurrent: ImageButton
-    private lateinit var btnClearList: Button
 
     private var videoUris = ArrayList<String>()
     private var currentIndex = 0
@@ -59,8 +56,6 @@ class PlayerActivity : AppCompatActivity() {
         seekBar = findViewById(R.id.seekBar)
         timeText = findViewById(R.id.timeText)
         btnRewind = findViewById(R.id.btnRewind)
-        btnDeleteCurrent = findViewById(R.id.btnDeleteCurrent)
-        btnClearList = findViewById(R.id.btnClearList)
 
         player = ExoPlayer.Builder(this).build()
         playerView.player = player
@@ -85,7 +80,7 @@ class PlayerActivity : AppCompatActivity() {
 
         setupGestureDetector()
         setupSeekBar()
-        setupButtons()
+        setupRewindButton()
         showControlsTemporarily()
 
         player.addListener(object : Player.Listener {
@@ -102,18 +97,10 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupButtons() {
+    private fun setupRewindButton() {
         btnRewind.setOnClickListener {
             player.seekTo((player.currentPosition - 5000).coerceAtLeast(0))
             showControlsTemporarily()
-        }
-
-        btnDeleteCurrent.setOnClickListener {
-            removeCurrentVideo()
-        }
-
-        btnClearList.setOnClickListener {
-            clearVideoList()
         }
     }
 
@@ -129,27 +116,6 @@ class PlayerActivity : AppCompatActivity() {
         val savedSet = prefs.getStringSet(KEY_VIDEO_LIST, HashSet()) ?: HashSet()
         videoUris.clear()
         videoUris.addAll(savedSet)
-    }
-
-    private fun removeCurrentVideo() {
-        if (videoUris.isNotEmpty()) {
-            videoUris.removeAt(currentIndex)
-            saveVideoList()
-            Toast.makeText(this, "已删除当前视频", Toast.LENGTH_SHORT).show()
-            if (videoUris.isEmpty()) {
-                clearVideoList()
-            } else {
-                if (currentIndex >= videoUris.size) currentIndex = videoUris.size - 1
-                playCurrentVideo()
-            }
-        }
-    }
-
-    private fun clearVideoList() {
-        videoUris.clear()
-        getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).edit().remove(KEY_VIDEO_LIST).apply()
-        Toast.makeText(this, "列表已全部清除", Toast.LENGTH_SHORT).show()
-        finish()
     }
 
     private fun showControlsTemporarily() {
